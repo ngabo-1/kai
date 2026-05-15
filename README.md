@@ -3736,7 +3736,7 @@
                                                 </div>
                                                 <div>
                                                     <span class="text-primary">${speaker.totalScore} pts</span>
-                                                    ${speaker.medal ? `<i class="fas fa-medal ms-1" style="color: ${speaker.medal};"></i>` : ''}
+                                                    ${speaker.medal? `<i class="fas fa-medal ms-1" style="color: ${speaker.medal};"></i>` : ''}
                                                     <i class="fas ${speaker.trend === 'up' ? 'fa-arrow-up trend-up' : speaker.trend === 'down' ? 'fa-arrow-down trend-down' : 'fa-minus trend-stable'} ms-1"></i>
                                                 </div>
                                             </div>
@@ -3957,4 +3957,4 @@
         });
     </script>
 </body>
-</html>
+</html
