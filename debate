@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDBATE · three‑member teams</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .app-container {
+            display: flex;
+            max-width: 1400px;
+            width: 100%;
+            gap: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        /* SIDEBAR - Original dark style with orange */
+        .sidebar {
+            flex: 0 0 320px;
+            background: #1e1e2e;
+            border-radius: 32px;
+            padding: 2rem 1.5rem;
+            color: #e0e0e0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            height: fit-content;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar.collapsed {
+            flex: 0 0 80px;
+            padding: 2rem 1rem;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed h2 span,
+        .sidebar.collapsed .podium-mini,
+        .sidebar.collapsed .stat-card-side,
+        .sidebar.collapsed .teams-section {
+            display: none;
+        }
+
+        .sidebar .toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: -12px;
+            background: #f57c00;
+            color: #1e1e2e;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid #1e1e2e;
+            z-index: 10;
+            transition: 0.2s;
+        }
+
+        .sidebar .toggle-btn:hover {
+            background: #ff9500;
+        }
+
+        .sidebar h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f57c00;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar h2 i {
+            font-size: 2rem;
+        }
+
+        /* Dashboard mini podium */
+        .podium-mini {
+            background: #2d2d3a;
+            border-radius: 24px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            border-left: 6px solid #f57c00;
+        }
+        .podium-mini h4 {
+            color: #f57c00;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .podium-mini-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e1e2e;
+            border-radius: 40px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .podium-mini-item .rank {
+            font-weight: 800;
+            color: #f57c00;
+            width: 2rem;
+        }
+        .podium-mini-item .name {
+            flex: 1;
+            font-weight: 500;
+        }
+        .podium-mini-item .points {
+            background: #f57c00;
+            color: #1e1e2e;
+            font-weight: 700;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+
+        .stat-card-side {
+            background: #2d2d3a;
+            border-radius: 24px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border-left: 6px solid #f57c00;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #40405c;
+        }
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        .stat-label {
+            color: #a0a0b0;
+        }
+        .stat-value {
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .teams-section {
+            margin-top: 2rem;
+        }
+
+        .teams-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .teams-header h3 {
+            color: #f57c00;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .add-team-btn {
+            background: #f57c00;
+            color: #1e1e2e;
+            border: none;
+            border-radius: 30px;
+            width: 36px;
+            height: 36px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .add-team-btn:hover {
+            background: #ff9500;
+            transform: scale(1.05);
+        }
+
+        /* Team cards with three fixed slots */
+        .team-card {
+            background: #2d2d3a;
+            border-radius: 28px;
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
+            border: 2px solid transparent;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .team-card:hover {
+            border-color: #f57c00;
+        }
+
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .team-name {
+            font-weight: 700;
+            color: white;
+            font-size: 1.3rem;
+            background: #1e1e2e;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            border-left: 4px solid #f57c00;
+        }
+
+        .team-actions button {
+            background: none;
+            border: none;
+            color: #f57c00;
+            font-size: 1.2rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+        .team-actions button:hover {
+            color: #ff9500;
+        }
+
+        .team-members {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        /* Three fixed slots */
+        .member-slot {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1e1e2e;
+            border-radius: 40px;
+            padding: 0.5rem 1rem;
+            border: 1px solid #40405c;
+        }
+        .member-slot .slot-number {
+            color: #f57c00;
+            font-weight: 700;
+            min-width: 2rem;
+            font-size: 0.9rem;
+        }
+        .member-slot .name {
+            flex: 2;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+        .member-slot .points {
+            background: #f57c00;
+            color: #1e1e2e;
+            font-weight: 700;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            min-width: 4rem;
+            text-align: center;
+        }
+        .member-slot .edit-slot {
+            background: none;
+            border: none;
+            color: #f57c00;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .member-slot .edit-slot:hover {
+            color: #ff9500;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            padding: 2rem;
+        }
+
+        .main-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e1e2e;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .main-header h1 i {
+            color: #f57c00;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            border-left: 4px solid #f57c00;
+            padding-left: 1rem;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+        .tab {
+            padding: 0.6rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+        }
+        .tab.active {
+            background: #f57c00;
+            color: #1e1e2e;
+        }
+        .tab:hover:not(.active) {
+            background: #e2e8f0;
+        }
+
+        .rankings-view { display: block; }
+        .progress-view { display: none; }
+
+        .input-section {
+            background: #f8fafc;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 2 1 200px;
+        }
+
+        .input-field label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: #475569;
+            margin-bottom: 0.3rem;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #f57c00;
+            box-shadow: 0 0 0 3px rgba(245,124,0,0.1);
+        }
+
+        .points-field { flex: 1 1 120px; }
+
+        .add-btn {
+            flex: 0 0 auto;
+            background: #f57c00;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 0.9rem 2rem;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(245,124,0,0.3);
+            height: 54px;
+            white-space: nowrap;
+        }
+
+        .add-btn:hover { 
+            background: #e07c00; 
+            transform: scale(1.02);
+        }
+
+        .top3-section, .top10-section {
+            background: #f8fafc;
+            border-radius: 32px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .top3-header, .top10-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+        }
+        .top3-header h3, .top10-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e1e2e;
+        }
+
+        .top3-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .podium-item {
+            background: white;
+            border-radius: 30px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        .podium-item.first { border-color: #f57c00; background: #fff7ed; }
+        .podium-rank { font-size: 2rem; font-weight: 800; color: #f57c00; }
+        .podium-name { font-weight: 700; font-size: 1.2rem; }
+        .podium-points { font-weight: 600; color: #64748b; }
+
+        .top10-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.8rem;
+        }
+        .top10-item {
+            background: white;
+            border-radius: 40px;
+            padding: 0.8rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            border: 1px solid #e2e8f0;
+        }
+        .top10-rank { font-weight: 800; color: #f57c00; min-width: 2rem; }
+        .top10-name { flex: 1; font-weight: 600; }
+        .top10-points {
+            background: #f1f5f9;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-weight: 700;
+        }
+
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .leaderboard-header h2 { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: #1e1e2e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .reset-btn {
+            background: none;
+            border: 2px solid #e2e8f0;
+            color: #64748b;
+            border-radius: 40px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .reset-btn:hover { 
+            border-color: #f57c00; 
+            color: #f57c00; 
+            background: #fff7ed; 
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 20px;
+            border: 1px solid #edf2f7;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th {
+            background: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .rank-cell { font-weight: 800; color: #f57c00; }
+        .actions { display: flex; gap: 0.8rem; }
+        .edit-btn, .delete-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .edit-btn { color: #3b82f6; }
+        .delete-btn { color: #ef4444; }
+
+        /* Round cards */
+        .bracket-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .round-card {
+            background: #f8fafc;
+            border-radius: 24px;
+            padding: 1.2rem;
+            border: 2px solid #e2e8f0;
+        }
+        .round-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px dashed #f57c00;
+        }
+        .round-header h4 {
+            color: #f57c00;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .round-header button {
+            background: none;
+            border: none;
+            color: #f57c00;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+        .round-header button:hover {
+            color: #ff9500;
+        }
+        .round-teams {
+            list-style: none;
+        }
+        .round-teams li {
+            background: white;
+            border-radius: 16px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.6rem;
+            border: 1px solid #e2e8f0;
+        }
+        .team-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+        .team-summary .team-name {
+            font-weight: 700;
+            color: #1e1e2e;
+        }
+        .team-summary button {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+        }
+        .team-members-preview {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            font-size: 0.75rem;
+        }
+        .member-tag {
+            background: #f1f5f9;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            color: #475569;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(3px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: #1e1e2e;
+            border-radius: 32px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            border: 2px solid #f57c00;
+            color: #e0e0e0;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-box h3 {
+            color: #f57c00;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        .modal-box label {
+            display: block;
+            margin-top: 1rem;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+            color: #f57c00;
+        }
+        .modal-box input, .modal-box select {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            background: #2d2d3a;
+            border: 2px solid #40405c;
+            border-radius: 40px;
+            color: white;
+            font-size: 1rem;
+        }
+        .modal-box input:focus, .modal-box select:focus {
+            outline: none;
+            border-color: #f57c00;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+        .modal-btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+        .modal-btn.confirm {
+            background: #f57c00;
+            color: #1e1e2e;
+        }
+        .modal-btn.cancel {
+            background: #2d2d3a;
+            color: #e0e0e0;
+            border: 1px solid #40405c;
+        }
+        .modal-btn:hover {
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 1000px) {
+            .app-container { flex-direction: column; }
+            .sidebar { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR - Dark with orange accent -->
+        <aside class="sidebar" id="sidebar">
+            <div class="toggle-btn" id="toggleSidebar">
+                <i class="fa-solid fa-chevron-left" id="toggleIcon"></i>
+            </div>
+            <h2><i class="fa-regular fa-chart-bar"></i> <span>DASHBOARD</span></h2>
+
+            <!-- Mini Podium -->
+            <div class="podium-mini" id="miniPodium"></div>
+            
+            <!-- Stats Card -->
+            <div class="stat-card-side" id="sidebarStats"></div>
+
+            <!-- Teams Section -->
+            <div class="teams-section">
+                <div class="teams-header">
+                    <h3><i class="fa-regular fa-users"></i> <span>TEAMS</span></h3>
+                    <button class="add-team-btn" id="addTeamBtn" title="Add new team">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+                <div id="teamsContainer"></div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <div class="main-header">
+                <h1><i class="fa-regular fa-microphone"></i> IDBATE COMPETITION</h1>
+                <div class="subtitle">Add speakers, form teams (max 3 members), and assign teams to rounds</div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tab-bar">
+                <button class="tab active" id="tabRankings">🏆 Speakers</button>
+                <button class="tab" id="tabProgress">📊 Round Assignments</button>
+            </div>
+
+            <!-- SPEAKERS VIEW -->
+            <div class="rankings-view" id="rankingsView">
+                <!-- Add Speaker Form -->
+                <div class="input-section">
+                    <div class="input-row">
+                        <div class="input-field">
+                            <label>Speaker name</label>
+                            <input type="text" id="speakerName" placeholder="e.g., Jane Doe">
+                        </div>
+                        <div class="input-field points-field">
+                            <label>Points (0-90)</label>
+                            <input type="number" id="speakerPoints" placeholder="0" min="0" max="90" step="0.1" value="0">
+                        </div>
+                        <button class="add-btn" id="addBtn">
+                            <i class="fa-solid fa-plus"></i> Add / Update
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Top 3 Speakers -->
+                <div class="top3-section">
+                    <div class="top3-header">
+                        <i class="fa-solid fa-crown" style="color:#f57c00;"></i>
+                        <h3>Top 3 speakers</h3>
+                    </div>
+                    <div class="top3-grid" id="top3Grid"></div>
+                </div>
+
+                <!-- Top 10 Speakers -->
+                <div class="top10-section">
+                    <div class="top10-header">
+                        <i class="fa-solid fa-trophy" style="color:#f57c00;"></i>
+                        <h3>Top 10 speakers</h3>
+                    </div>
+                    <div class="top10-grid" id="top10Grid"></div>
+                </div>
+
+                <!-- All Speakers Table -->
+                <div class="leaderboard-header">
+                    <h2><i class="fa-regular fa-list"></i> All speakers</h2>
+                    <button class="reset-btn" id="resetBtn">
+                        <i class="fa-regular fa-trash-can"></i> Reset all
+                    </button>
+                </div>
+                <div class="table-container" id="tableContainer"></div>
+            </div>
+
+            <!-- ROUNDS VIEW -->
+            <div class="progress-view" id="progressView">
+                <h2 style="margin-bottom:1.5rem;">
+                    <i class="fa-regular fa-diagram-project" style="color:#f57c00;"></i> 
+                    Team Round Assignments
+                </h2>
+                <div class="bracket-container" id="bracketContainer"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- TEAM MODAL -->
+    <div class="modal-overlay" id="teamModal">
+        <div class="modal-box">
+            <h3 id="teamModalTitle">Add Team</h3>
+            <form id="teamForm">
+                <label>Team Name</label>
+                <input type="text" id="teamNameInput" placeholder="e.g., Team Phoenix" required>
+
+                <label style="margin-top:1.5rem;">Member 1 (optional)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="member1Name" placeholder="Name" style="flex: 2;">
+                    <input type="number" id="member1Points" placeholder="Points" min="0" max="90" step="0.1" value="0" style="flex: 1;">
+                </div>
+
+                <label>Member 2 (optional)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="member2Name" placeholder="Name" style="flex: 2;">
+                    <input type="number" id="member2Points" placeholder="Points" min="0" max="90" step="0.1" value="0" style="flex: 1;">
+                </div>
+
+                <label>Member 3 (optional)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="member3Name" placeholder="Name" style="flex: 2;">
+                    <input type="number" id="member3Points" placeholder="Points" min="0" max="90" step="0.1" value="0" style="flex: 1;">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn cancel" id="teamModalCancel">Cancel</button>
+                    <button type="submit" class="modal-btn confirm" id="teamModalConfirm">Save Team</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ALERT MODAL -->
+    <div class="modal-overlay" id="alertModal">
+        <div class="modal-box">
+            <h3 id="alertTitle">Notice</h3>
+            <p id="alertMessage" style="margin: 20px 0;"></p>
+            <div class="modal-actions">
+                <button class="modal-btn confirm" id="alertOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM MODAL -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <h3 id="confirmTitle">Confirm</h3>
+            <p id="confirmMessage" style="margin: 20px 0;"></p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="confirmNoBtn">Cancel</button>
+                <button class="modal-btn confirm" id="confirmYesBtn">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SELECT TEAM MODAL -->
+    <div class="modal-overlay" id="selectTeamModal">
+        <div class="modal-box">
+            <h3 id="selectTeamTitle">Select Team</h3>
+            <p id="selectTeamMessage" style="margin: 10px 0;"></p>
+            <select id="teamSelect" style="width: 100%; margin: 15px 0;"></select>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="selectTeamCancelBtn">Cancel</button>
+                <button class="modal-btn confirm" id="selectTeamConfirmBtn">Select</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let speakers = [];
+        let teams = [];
+        let roundAssignments = {
+            prelim1: [], prelim2: [], prelim3: [],
+            octa: [], quarter: [], semi: [], final: []
+        };
+
+        // Load from localStorage
+        function loadData() {
+            try {
+                const savedSpeakers = localStorage.getItem('idbate_speakers');
+                if (savedSpeakers) speakers = JSON.parse(savedSpeakers);
+                
+                const savedTeams = localStorage.getItem('idbate_teams');
+                if (savedTeams) teams = JSON.parse(savedTeams);
+                
+                const savedRounds = localStorage.getItem('idbate_rounds');
+                if (savedRounds) roundAssignments = JSON.parse(savedRounds);
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+        }
+        loadData();
+
+        // Save functions
+        function saveSpeakers() { localStorage.setItem('idbate_speakers', JSON.stringify(speakers)); }
+        function saveTeams() { localStorage.setItem('idbate_teams', JSON.stringify(teams)); }
+        function saveRounds() { localStorage.setItem('idbate_rounds', JSON.stringify(roundAssignments)); }
+
+        // Modal functions
+        function showAlert(message, title = 'Notice') {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('alertModal').classList.add('active');
+        }
+
+        function hideAlert() {
+            document.getElementById('alertModal').classList.remove('active');
+        }
+
+        function showConfirm(message, title = 'Confirm') {
+            return new Promise(resolve => {
+                document.getElementById('confirmTitle').textContent = title;
+                document.getElementById('confirmMessage').textContent = message;
+                document.getElementById('confirmModal').classList.add('active');
+                
+                const yesHandler = () => {
+                    document.getElementById('confirmModal').classList.remove('active');
+                    document.getElementById('confirmYesBtn').removeEventListener('click', yesHandler);
+                    document.getElementById('confirmNoBtn').removeEventListener('click', noHandler);
+                    resolve(true);
+                };
+                
+                const noHandler = () => {
+                    document.getElementById('confirmModal').classList.remove('active');
+                    document.getElementById('confirmYesBtn').removeEventListener('click', yesHandler);
+                    document.getElementById('confirmNoBtn').removeEventListener('click', noHandler);
+                    resolve(false);
+                };
+                
+                document.getElementById('confirmYesBtn').addEventListener('click', yesHandler);
+                document.getElementById('confirmNoBtn').addEventListener('click', noHandler);
+            });
+        }
+
+        function showTeamSelect(options, message, title) {
+            return new Promise(resolve => {
+                document.getElementById('selectTeamTitle').textContent = title;
+                document.getElementById('selectTeamMessage').textContent = message;
+                
+                const select = document.getElementById('teamSelect');
+                select.innerHTML = '';
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.label;
+                    select.appendChild(option);
+                });
+                
+                document.getElementById('selectTeamModal').classList.add('active');
+                
+                const confirmHandler = () => {
+                    const value = select.value;
+                    document.getElementById('selectTeamModal').classList.remove('active');
+                    document.getElementById('selectTeamConfirmBtn').removeEventListener('click', confirmHandler);
+                    document.getElementById('selectTeamCancelBtn').removeEventListener('click', cancelHandler);
+                    resolve(value);
+                };
+                
+                const cancelHandler = () => {
+                    document.getElementById('selectTeamModal').classList.remove('active');
+                    document.getElementById('selectTeamConfirmBtn').removeEventListener('click', confirmHandler);
+                    document.getElementById('selectTeamCancelBtn').removeEventListener('click', cancelHandler);
+                    resolve(null);
+                };
+                
+                document.getElementById('selectTeamConfirmBtn').addEventListener('click', confirmHandler);
+                document.getElementById('selectTeamCancelBtn').addEventListener('click', cancelHandler);
+            });
+        }
+
+        // Close alert modal
+        document.getElementById('alertOkBtn').addEventListener('click', hideAlert);
+
+        // Escape HTML
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/[&<>"]/g, m => {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        // Render functions
+        function renderSidebarStats() {
+            const total = speakers.length;
+            const totalPoints = speakers.reduce((sum, s) => sum + s.points, 0);
+            const avg = total ? (totalPoints / total).toFixed(1) : 0;
+            const max = speakers.length ? Math.max(...speakers.map(s => s.points)) : 0;
+            
+            document.getElementById('sidebarStats').innerHTML = `
+                <div class="stat-row">
+                    <span class="stat-label">Speakers</span>
+                    <span class="stat-value">${total}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Total pts</span>
+                    <span class="stat-value">${totalPoints.toFixed(1)}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Average</span>
+                    <span class="stat-value">${avg}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Highest</span>
+                    <span class="stat-value">${max.toFixed(1)}</span>
+                </div>
+            `;
+        }
+
+        function renderMiniPodium() {
+            const sorted = [...speakers].sort((a, b) => b.points - a.points).slice(0, 3);
+            const container = document.getElementById('miniPodium');
+            
+            if (sorted.length === 0) {
+                container.innerHTML = '<h4><i class="fa-solid fa-crown"></i> Top 3</h4><p style="color:#aaa;">No speakers</p>';
+                return;
+            }
+            
+            container.innerHTML = '<h4><i class="fa-solid fa-crown"></i> Top 3</h4>' + 
+                sorted.map((s, i) => `
+                    <div class="podium-mini-item">
+                        <span class="rank">#${i+1}</span>
+                        <span class="name">${escapeHtml(s.name)}</span>
+                        <span class="points">${s.points.toFixed(1)}</span>
+                    </div>
+                `).join('');
+        }
+
+        function renderTeams() {
+            const container = document.getElementById('teamsContainer');
+            
+            if (teams.length === 0) {
+                container.innerHTML = '<p style="color:#aaa; text-align:center;">No teams yet. Click + to add.</p>';
+                return;
+            }
+            
+            container.innerHTML = teams.map(team => {
+                const members = team.members || [];
+                let slotsHtml = '';
+                
+                for (let i = 0; i < 3; i++) {
+                    if (i < members.length) {
+                        slotsHtml += `
+                            <div class="member-slot">
+                                <span class="slot-number">#${i+1}</span>
+                                <span class="name">${escapeHtml(members[i].name)}</span>
+                                <span class="points">${members[i].points.toFixed(1)}</span>
+                                <button class="edit-slot" onclick="editTeam('${team.id}')" title="Edit">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        slotsHtml += `
+                            <div class="member-slot" style="opacity:0.6;">
+                                <span class="slot-number">#${i+1}</span>
+                                <span class="name">— empty —</span>
+                                <span class="points">—</span>
+                                <button class="edit-slot" onclick="editTeam('${team.id}')" title="Add">
+                                    <i class="fa-regular fa-plus"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+                
+                return `
+                    <div class="team-card">
+                        <div class="team-header">
+                            <span class="team-name">${escapeHtml(team.name)}</span>
+                            <div class="team-actions">
+                                <button onclick="editTeam('${team.id}')" title="Edit team">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteTeam('${team.id}')" title="Delete team">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="team-members">
+                            ${slotsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTop3() {
+            const sorted = [...speakers].sort((a, b) => b.points - a.points).slice(0, 3);
+            const grid = document.getElementById('top3Grid');
+            
+            if (sorted.length === 0) {
+                grid.innerHTML = '<p style="color:#94a3b8;">No speakers</p>';
+                return;
+            }
+            
+            grid.innerHTML = sorted.map((s, i) => `
+                <div class="podium-item ${i === 0 ? 'first' : ''}">
+                    <div class="podium-rank">#${i+1}</div>
+                    <div class="podium-name">${escapeHtml(s.name)}</div>
+                    <div class="podium-points">${s.points.toFixed(1)} pts</div>
+                </div>
+            `).join('');
+        }
+
+        function renderTop10() {
+            const sorted = [...speakers].sort((a, b) => b.points - a.points).slice(0, 10);
+            const grid = document.getElementById('top10Grid');
+            
+            if (sorted.length === 0) {
+                grid.innerHTML = '<p style="color:#94a3b8;">No speakers</p>';
+                return;
+            }
+            
+            grid.innerHTML = sorted.map((s, i) => `
+                <div class="top10-item">
+                    <span class="top10-rank">#${i+1}</span>
+                    <span class="top10-name">${escapeHtml(s.name)}</span>
+                    <span class="top10-points">${s.points.toFixed(1)}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderFullTable() {
+            const sorted = [...speakers].sort((a, b) => b.points - a.points);
+            const container = document.getElementById('tableContainer');
+            
+            if (sorted.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8;"><i class="fa-regular fa-face-smile"></i> No speakers yet. Add one above!</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Speaker</th>
+                            <th>Points</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sorted.map((s, i) => `
+                            <tr>
+                                <td class="rank-cell">#${i+1}</td>
+                                <td>${escapeHtml(s.name)}</td>
+                                <td>${s.points.toFixed(1)}</td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="edit-btn" onclick="editSpeaker('${s.id}')" title="Edit">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                        <button class="delete-btn" onclick="deleteSpeaker('${s.id}')" title="Delete">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderRounds() {
+            const rounds = [
+                { key: 'prelim1', name: 'Preliminary 1' },
+                { key: 'prelim2', name: 'Preliminary 2' },
+                { key: 'prelim3', name: 'Preliminary 3' },
+                { key: 'octa', name: 'Octa‑final' },
+                { key: 'quarter', name: 'Quarter‑final' },
+                { key: 'semi', name: 'Semi‑final' },
+                { key: 'final', name: 'Final' }
+            ];
+            
+            const container = document.getElementById('bracketContainer');
+            
+            container.innerHTML = rounds.map(round => {
+                const assignedTeams = (roundAssignments[round.key] || [])
+                    .map(id => teams.find(t => t.id === id))
+                    .filter(t => t);
+                
+                return `
+                    <div class="round-card">
+                        <div class="round-header">
+                            <h4>${round.name}</h4>
+                            <button onclick="addTeamToRound('${round.key}')" title="Add team">
+                                <i class="fa-solid fa-plus-circle"></i>
+                            </button>
+                        </div>
+                        <ul class="round-teams">
+                            ${assignedTeams.length === 0 ? 
+                                '<li style="color:#94a3b8; text-align:center;">— empty —</li>' : 
+                                assignedTeams.map(team => `
+                                    <li>
+                                        <div class="team-summary">
+                                            <span class="team-name">${escapeHtml(team.name)}</span>
+                                            <button onclick="removeTeamFromRound('${round.key}', '${team.id}')" title="Remove">
+                                                <i class="fa-regular fa-trash-can"></i>
+                                            </button>
+                                        </div>
+                                        <div class="team-members-preview">
+                                            ${team.members.map(m => `
+                                                <span class="member-tag">${escapeHtml(m.name)} (${m.points.toFixed(1)})</span>
+                                            `).join('')}
+                                        </div>
+                                    </li>
+                                `).join('')
+                            }
+                        </ul>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAll() {
+            renderSidebarStats();
+            renderMiniPodium();
+            renderTeams();
+            renderTop3();
+            renderTop10();
+            renderFullTable();
+            renderRounds();
+        }
+
+        // Speaker functions
+        window.editSpeaker = function(id) {
+            const speaker = speakers.find(s => s.id === id);
+            if (speaker) {
+                document.getElementById('speakerName').value = speaker.name;
+                document.getElementById('speakerPoints').value = speaker.points;
+            }
+        };
+
+        window.deleteSpeaker = async function(id) {
+            if (await showConfirm('Delete this speaker?')) {
+                speakers = speakers.filter(s => s.id !== id);
+                saveSpeakers();
+                renderAll();
+            }
+        };
+
+        // Team functions
+        let currentTeamId = null;
+
+        window.editTeam = function(id) {
+            const team = teams.find(t => t.id === id);
+            if (team) {
+                currentTeamId = id;
+                document.getElementById('teamModalTitle').textContent = 'Edit Team';
+                document.getElementById('teamNameInput').value = team.name || '';
+                
+                const members = team.members || [];
+                document.getElementById('member1Name').value = members[0]?.name || '';
+                document.getElementById('member1Points').value = members[0]?.points || 0;
+                document.getElementById('member2Name').value = members[1]?.name || '';
+                document.getElementById('member2Points').value = members[1]?.points || 0;
+                document.getElementById('member3Name').value = members[2]?.name || '';
+                document.getElementById('member3Points').value = members[2]?.points || 0;
+                
+                document.getElementById('teamModal').classList.add('active');
+            }
+        };
+
+        window.deleteTeam = async function(id) {
+            if (await showConfirm('Delete this team?')) {
+                // Remove from rounds
+                for (let round in roundAssignments) {
+                    roundAssignments[round] = roundAssignments[round].filter(tid => tid !== id);
+                }
+                teams = teams.filter(t => t.id !== id);
+                saveTeams();
+                saveRounds();
+                renderAll();
+            }
+        };
+
+        // Round functions
+        window.addTeamToRound = async function(roundKey) {
+            if (teams.length === 0) {
+                showAlert('No teams available. Create teams first.');
+                return;
+            }
+            
+            const options = teams.map(t => ({
+                value: t.id,
+                label: `${t.name} (${t.members.length} members)`
+            }));
+            
+            const selectedId = await showTeamSelect(options, 'Select a team to add:', `Add to ${roundKey}`);
+            
+            if (selectedId) {
+                if (!roundAssignments[roundKey].includes(selectedId)) {
+                    roundAssignments[roundKey].push(selectedId);
+                    saveRounds();
+                    renderRounds();
+                } else {
+                    showAlert('Team already in this round.');
+                }
+            }
+        };
+
+        window.removeTeamFromRound = async function(roundKey, teamId) {
+            if (await showConfirm('Remove this team from the round?')) {
+                roundAssignments[roundKey] = roundAssignments[roundKey].filter(id => id !== teamId);
+                saveRounds();
+                renderRounds();
+            }
+        };
+
+        // Event Listeners
+        document.getElementById('addTeamBtn').addEventListener('click', () => {
+            currentTeamId = null;
+            document.getElementById('teamModalTitle').textContent = 'Add New Team';
+            document.getElementById('teamNameInput').value = '';
+            document.getElementById('member1Name').value = '';
+            document.getElementById('member1Points').value = 0;
+            document.getElementById('member2Name').value = '';
+            document.getElementById('member2Points').value = 0;
+            document.getElementById('member3Name').value = '';
+            document.getElementById('member3Points').value = 0;
+            document.getElementById('teamModal').classList.add('active');
+        });
+
+        document.getElementById('teamModalCancel').addEventListener('click', () => {
+            document.getElementById('teamModal').classList.remove('active');
+        });
+
+        document.getElementById('teamForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const teamName = document.getElementById('teamNameInput').value.trim();
+            if (!teamName) {
+                showAlert('Team name is required');
+                return;
+            }
+            
+            const members = [];
+            
+            if (document.getElementById('member1Name').value.trim()) {
+                const points = parseFloat(document.getElementById('member1Points').value) || 0;
+                if (points < 0 || points > 90) {
+                    showAlert('Points for member 1 must be 0-90');
+                    return;
+                }
+                members.push({
+                    name: document.getElementById('member1Name').value.trim(),
+                    points: points
+                });
+            }
+            
+            if (document.getElementById('member2Name').value.trim()) {
+                const points = parseFloat(document.getElementById('member2Points').value) || 0;
+                if (points < 0 || points > 90) {
+                    showAlert('Points for member 2 must be 0-90');
+                    return;
+                }
+                members.push({
+                    name: document.getElementById('member2Name').value.trim(),
+                    points: points
+                });
+            }
+            
+            if (document.getElementById('member3Name').value.trim()) {
+                const points = parseFloat(document.getElementById('member3Points').value) || 0;
+                if (points < 0 || points > 90) {
+                    showAlert('Points for member 3 must be 0-90');
+                    return;
+                }
+                members.push({
+                    name: document.getElementById('member3Name').value.trim(),
+                    points: points
+                });
+            }
+            
+            if (currentTeamId) {
+                // Edit existing
+                const team = teams.find(t => t.id === currentTeamId);
+                if (team) {
+                    team.name = teamName;
+                    team.members = members;
+                }
+            } else {
+                // Add new
+                teams.push({
+                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+                    name: teamName,
+                    members: members
+                });
+            }
+            
+            saveTeams();
+            renderAll();
+            document.getElementById('teamModal').classList.remove('active');
+        });
+
+        document.getElementById('addBtn').addEventListener('click', () => {
+            const name = document.getElementById('speakerName').value.trim();
+            const points = parseFloat(document.getElementById('speakerPoints').value);
+            
+            if (!name) {
+                showAlert('Please enter a speaker name');
+                return;
+            }
+            
+            if (isNaN(points) || points < 0 || points > 90) {
+                showAlert('Points must be between 0 and 90');
+                return;
+            }
+            
+            const existingIndex = speakers.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
+            
+            if (existingIndex !== -1) {
+                speakers[existingIndex].points = points;
+            } else {
+                speakers.push({
+                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+                    name: name,
+                    points: points
+                });
+            }
+            
+            saveSpeakers();
+            renderAll();
+            
+            document.getElementById('speakerName').value = '';
+            document.getElementById('speakerPoints').value = 0;
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', async () => {
+            if (await showConfirm('Delete all speakers?')) {
+                speakers = [];
+                saveSpeakers();
+                renderAll();
+            }
+        });
+
+        // Tab switching
+        const tabRankings = document.getElementById('tabRankings');
+        const tabProgress = document.getElementById('tabProgress');
+        const rankingsView = document.getElementById('rankingsView');
+        const progressView = document.getElementById('progressView');
+
+        tabRankings.addEventListener('click', () => {
+            tabRankings.classList.add('active');
+            tabProgress.classList.remove('active');
+            rankingsView.style.display = 'block';
+            progressView.style.display = 'none';
+        });
+
+        tabProgress.addEventListener('click', () => {
+            tabProgress.classList.add('active');
+            tabRankings.classList.remove('active');
+            rankingsView.style.display = 'none';
+            progressView.style.display = 'block';
+            renderRounds();
+        });
+
+        // Sidebar collapse
+        const sidebar = document.getElementById('sidebar');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            } else {
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+            }
+        });
+
+        // Enter key for speaker input
+        document.getElementById('speakerName').addEventListener('keypress', e => {
+            if (e.key === 'Enter') document.getElementById('addBtn').click();
+        });
+        document.getElementById('speakerPoints').addEventListener('keypress', e => {
+            if (e.key === 'Enter') document.getElementById('addBtn').click();
+        });
+
+        // Initial render
+        renderAll();
+    </script>
+</body>
+</html>
